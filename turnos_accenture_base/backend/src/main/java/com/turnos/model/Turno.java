@@ -2,6 +2,7 @@ package com.turnos.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -40,10 +41,12 @@ public class Turno {
     private Integer numero;
 
     @JsonFormat(pattern = "HH:mm:ss")
+    @Convert(converter = LocalTimeStringConverter.class)
     @Column(name = "hora_solicitud", nullable = false)
     private LocalTime horaSolicitud;
 
     @JsonFormat(pattern = "HH:mm:ss")
+    @Convert(converter = LocalTimeStringConverter.class)
     @Column(name = "hora_atencion")
     private LocalTime horaAtencion;
 
