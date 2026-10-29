@@ -1,5 +1,6 @@
 # 🏛️ WORKFLOW SPEC & BLUEPRINT TÉCNICO
 > **Proyecto:** Fila Virtual de Turnos (Eliminar Filas Físicas)  
+> **Candidato:** Alan Moreno  
 > **Fecha:** 29 de Octubre de 2026  
 > **Stack:** Java 17 (Spring Boot 3) | Angular | Selenium WebDriver | Postman CLI | GitHub
 
@@ -19,6 +20,7 @@ Una oficina de atención busca **eliminar las filas físicas** implementando una
      * **Turno actualmente en ventanilla** (ej. Atendiendo `#5`).
      * **Personas por delante** en la fila (ej. *5 personas antes de ti*).
      * **Tiempo estimado de espera:** Calculado con base en la métrica histórica del CSV ($5 \text{ personas} \times \approx 12.6 \text{ min} = \sim 63 \text{ min}$).
+  4. **Opción de Cancelación:** El usuario puede presionar el botón *"Cancelar Turno"* en cualquier momento mientras esté en espera. Al hacerlo, el turno pasa a estado `cancelado`, se libera su cupo en la fila y se recalculan los tiempos de los demás usuarios.
 
 ### 💻 HU-02: Vista Atendedor (Ventanilla / Oficina)
 > **"Como atendedor, quiero llamar los turnos y ver cuántas personas están esperando."**
@@ -45,6 +47,10 @@ Una oficina de atención busca **eliminar las filas físicas** implementando una
 4. **Cálculo de Tiempos:**
    * $\text{Tiempo de Espera} = \text{hora\_atencion} - \text{hora\_solicitud}$ (para turnos atendidos).
    * $\text{Tiempo Estimado Restante} = (\text{Personas por delante}) \times (\text{Promedio de Espera Histórico})$.
+5. **Ciclo de Vida y Cancelación de Turno:**
+   * Un turno solo puede transitar a `cancelado` si se encuentra en estado `pendiente`.
+   * Al cancelarse, se excluye de la cola de espera, se reduce inmediatamente el contador de *"Personas esperando"* del atendedor y se reducen los tiempos estimados de los turnos posteriores.
+   * Esta regla modela perfectamente el registro del turno `#7` a las `08:30:00` en el CSV (`7,08:30:00,,cancelado`), permitiendo que el usuario pueda posteriormente solicitar un nuevo turno.
 
 ---
 
@@ -54,6 +60,7 @@ Una oficina de atención busca **eliminar las filas físicas** implementando una
 | :--- | :--- | :--- | :--- |
 | `POST` | `/api/turnos/solicitar` | **(Móvil)** Solicita un nuevo turno | Responde: `{ "id": 12, "numero": 11, "horaSolicitud": "09:00:00", "estado": "pendiente", "turnosPorDelante": 5, "tiempoEstimadoMinutos": 63 }` |
 | `GET` | `/api/turnos/{numero}/estado` | **(Móvil)** Consulta estado y cuánto falta | Responde: `{ "numero": 11, "estado": "pendiente", "turnoActual": 5, "turnosPorDelante": 4, "tiempoEstimadoMinutos": 50 }` |
+| `PUT` | `/api/turnos/{numero}/cancelar` | **(Móvil)** Cancela el turno activo del usuario | Responde: `{ "numero": 11, "estado": "cancelado", "mensaje": "Turno cancelado exitosamente" }` |
 | `POST` | `/api/turnos/llamar-siguiente` | **(Atendedor)** Llama el siguiente turno FIFO | Responde: `{ "numero": 6, "horaAtencion": "08:52:10", "estado": "atendido" }` |
 | `GET` | `/api/turnos/metricas-fila` | **(Atendedor)** Métricas en vivo | Responde: `{ "personasEsperando": 5, "totalAtendidos": 5, "totalCancelados": 1, "turnoActual": 5, "promedioEsperaMinutos": 12.6 }` |
 | `GET` | `/api/turnos` | **(General)** Lista completa para la tabla | Responde: `Array<Turno>` |
@@ -112,6 +119,8 @@ Diseño dual responsive que permite alternar fácilmente entre **Vista Usuario M
 |  • Turno en ventanilla: #5         |          |  Turno | Solicitud | Atención | Estado     |
 |  • Personas antes de ti: 5         |          |  #1    | 08:02:00  | 08:05:00 | Atendido   |
 |  • Tiempo estimado: ~63 min        |          |  #6    | 08:25:00  | --:--:-- | En espera  |
+|                                    |          |                                            |
+|  [ ✕ Cancelar mi turno ]           |          |                                            |
 +------------------------------------+          +--------------------------------------------+
 ```
 

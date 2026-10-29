@@ -50,6 +50,7 @@ data/           # Initial dataset (turnos_hoy.csv)
 1. **📱 HU-01 (Usuario Móvil):**
    * Request a turn (`1` to `999`).
    * Track: assigned turn, current turn at desk, number of people ahead, and estimated wait time.
+   * Cancel active turn while in `pendiente` status, freeing spot in queue and updating estimated wait times for others.
 2. **💻 HU-02 (Atendedor / Ventanilla):**
    * Real-time counter of **"Personas esperando en este momento"** (`pendiente` count).
    * Primary action button: **"🛎️ Llamar Siguiente Turno"** (FIFO by `hora_solicitud`).
@@ -70,6 +71,7 @@ data/           # Initial dataset (turnos_hoy.csv)
    * Text: Zinc 900 `#18181B` / Secondary Zinc 500 `#71717A`
    * Badges: `pendiente` (Amber `#CA8A04` / `#FEFCE8`), `atendido` (Zinc `#52525B` / `#F4F4F5`), `cancelado` (Red `#DC2626` / `#FEF2F2`).
 6. **Frontend State:** Exclusively use Angular Signals (`signal()`, `computed()`). No legacy `BehaviorSubject` for component state.
+7. **Turn Cancellation:** Turns can transition from `pendiente` to `cancelado` upon user request, immediately decrementing the waiting count and updating queue estimates.
 
 ---
 
@@ -117,6 +119,8 @@ ng test
   - Response: `{ id, numero, horaSolicitud, estado: "pendiente", turnosPorDelante, tiempoEstimadoMinutos }`
 - `GET /api/turnos/{numero}/estado`:
   - Response: `{ numero, estado, turnoActual, turnosPorDelante, tiempoEstimadoMinutos }`
+- `PUT /api/turnos/{numero}/cancelar`:
+  - Response: `{ numero, estado: "cancelado", mensaje: "Turno cancelado exitosamente" }`
 - `POST /api/turnos/llamar-siguiente`:
   - Response: `{ id, numero, horaAtencion, estado: "atendido" }`
 - `GET /api/turnos/metricas-fila`:

@@ -45,6 +45,7 @@ data/           # Initial dataset (turnos_hoy.csv)
 1. **📱 HU-01 (Usuario Móvil):**
    * Request a new turn (`1` to `999`).
    * See own assigned turn number, current turn being served, number of people ahead in line, and estimated wait time in minutes.
+   * Cancel active turn while in `pendiente` status, freeing position in queue and updating estimated wait times for others.
 2. **💻 HU-02 (Atendedor / Ventanilla):**
    * Real-time counter of **"Personas esperando en este momento"** (count of `pendiente` turns).
    * Primary action button: **"🛎️ Llamar Siguiente Turno"** (picks oldest pending turn by `hora_solicitud`, marks as `atendido`, records `hora_atencion`).
@@ -65,6 +66,7 @@ data/           # Initial dataset (turnos_hoy.csv)
    * Text: Zinc 900 `#18181B` / Secondary Zinc 500 `#71717A`
    * Badges: `pendiente` (Amber `#CA8A04` / `#FEFCE8`), `atendido` (Zinc `#52525B` / `#F4F4F5`), `cancelado` (Red `#DC2626` / `#FEF2F2`).
 6. **Frontend Signals:** Exclusive use of Angular Signals (`signal()`, `computed()`) for reactive state. Avoid complex RxJS state subjects.
+7. **Turn Cancellation:** Turns can transition from `pendiente` to `cancelado` upon user request, immediately decrementing the waiting count and updating queue estimates.
 
 ---
 
@@ -111,6 +113,8 @@ ng test
   - Returns: `{ id, numero, horaSolicitud, estado: "pendiente", turnosPorDelante, tiempoEstimadoMinutos }`
 - `GET /api/turnos/{numero}/estado`: User tracking endpoint.
   - Returns: `{ numero, estado, turnoActual, turnosPorDelante, tiempoEstimadoMinutos }`
+- `PUT /api/turnos/{numero}/cancelar`: User cancels own turn.
+  - Returns: `{ numero, estado: "cancelado", mensaje: "Turno cancelado exitosamente" }`
 - `POST /api/turnos/llamar-siguiente`: Clerk call next button.
   - Returns: `{ id, numero, horaAtencion, estado: "atendido" }`
 - `GET /api/turnos/metricas-fila`: Clerk header KPIs.
