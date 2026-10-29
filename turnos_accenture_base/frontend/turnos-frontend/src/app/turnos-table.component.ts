@@ -109,7 +109,7 @@ export class TurnosTableComponent {
     }[status] ?? 'status-badge--unknown';
   }
 
-  private loadTurnos(): void {
+  loadTurnos(): void {
     this.turnosService.getTurnos().subscribe({
       next: (turnos) => {
         this.turnos.set(turnos);

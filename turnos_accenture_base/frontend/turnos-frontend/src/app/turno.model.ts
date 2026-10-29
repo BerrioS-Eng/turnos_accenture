@@ -7,3 +7,41 @@ export interface Turno {
   horaAtencion?: string | null;
   estado: EstadoTurno;
 }
+
+export interface SolicitarTurnoResponse {
+  id: number;
+  numero: number;
+  horaSolicitud: string;
+  estado: string;
+  turnosPorDelante: number;
+  tiempoEstimadoMinutos: number;
+}
+
+export interface EstadoTurnoResponse {
+  numero: number;
+  estado: string;
+  turnoActual: number;
+  turnosPorDelante: number;
+  tiempoEstimadoMinutos: number;
+}
+
+export interface LlamarTurnoResponse {
+  id: number;
+  numero: number;
+  horaAtencion: string;
+  estado: string;
+}
+
+export interface MetricasFilaResponse {
+  personasEsperando: number;
+  totalAtendidos: number;
+  totalCancelados: number;
+  turnoActual: number;
+  promedioEsperaMinutos: number;
+}
+
+export interface CancelarTurnoResponse {
+  numero: number;
+  estado: string;
+  mensaje: string;
+}
