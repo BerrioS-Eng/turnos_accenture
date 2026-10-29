@@ -1,0 +1,253 @@
+{
+  "info": {
+    "name": "Fila virtual de turnos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Métricas de la fila (inicial)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const m = pm.response.json();",
+              "pm.test('Contrato de métricas', () => {",
+              "  ['personasEsperando','totalAtendidos','totalCancelados','turnoActual','promedioEsperaMinutos'].forEach(k => pm.expect(m).to.have.property(k));",
+              "  pm.expect(m.personasEsperando).to.be.a('number').and.to.be.at.least(0);",
+              "});",
+              "pm.collectionVariables.set('esperandoAntes', m.personasEsperando);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos/metricas-fila",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos",
+            "metricas-fila"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. Solicitar turno (móvil)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200/201', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));",
+              "const t = pm.response.json();",
+              "pm.test('Contrato del turno', () => {",
+              "  ['id','numero','horaSolicitud','estado','turnosPorDelante','tiempoEstimadoMinutos'].forEach(k => pm.expect(t).to.have.property(k));",
+              "  pm.expect(t.estado).to.eql('pendiente');",
+              "  pm.expect(t.numero).to.be.within(1, 999);",
+              "  pm.expect(t.turnosPorDelante).to.eql(Number(pm.collectionVariables.get('esperandoAntes')));",
+              "});",
+              "pm.collectionVariables.set('numero', t.numero);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos/solicitar",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos",
+            "solicitar"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. Estado del turno (móvil)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const e = pm.response.json();",
+              "pm.test('Contrato del estado', () => {",
+              "  ['numero','estado','turnoActual','turnosPorDelante','tiempoEstimadoMinutos'].forEach(k => pm.expect(e).to.have.property(k));",
+              "  pm.expect(e.numero).to.eql(Number(pm.collectionVariables.get('numero')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos/{{numero}}/estado",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos",
+            "{{numero}}",
+            "estado"
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. Llamar siguiente (atendedor)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const t = pm.response.json();",
+              "pm.test('El turno llamado queda atendido', () => {",
+              "  pm.expect(t.estado).to.eql('atendido');",
+              "  pm.expect(t.horaAtencion).to.be.a('string').and.not.be.empty;",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos/llamar-siguiente",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos",
+            "llamar-siguiente"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Métricas después de llamar",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Personas esperando no cambia: +1 solicitado, -1 llamado', () =>",
+              "  pm.expect(pm.response.json().personasEsperando).to.eql(Number(pm.collectionVariables.get('esperandoAntes'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos/metricas-fila",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos",
+            "metricas-fila"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. Lista completa de turnos",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Es una lista de turnos', () => pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/turnos",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "turnos"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "numero",
+      "value": ""
+    },
+    {
+      "key": "esperandoAntes",
+      "value": ""
+    }
+  ]
+}
