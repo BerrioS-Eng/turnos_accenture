@@ -1,6 +1,5 @@
 # 🏛️ WORKFLOW SPEC & BLUEPRINT TÉCNICO
 > **Proyecto:** Fila Virtual de Turnos (Eliminar Filas Físicas)  
-> **Candidato:** Alan Moreno  
 > **Fecha:** 29 de Octubre de 2026  
 > **Stack:** Java 17 (Spring Boot 3) | Angular | Selenium WebDriver | Postman CLI | GitHub
 
