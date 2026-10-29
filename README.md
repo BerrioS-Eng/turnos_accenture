@@ -232,6 +232,5 @@ El frontend implementa la paleta *Modern FinTech Aurora*:
 ---
 
 ## 👥 Equipo & Entrega
-- **Candidato / Desarrollador:** Alan Moreno  
 - **Proyecto:** Reto Técnico Accenture — Fila Virtual de Turnos  
 - **Fecha:** Octubre de 2026
