@@ -29,6 +29,11 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     Optional<Turno> findTopByOrderByNumeroDesc();
 
     /**
+     * Obtiene el último turno registrado en la base de datos por ID descendente.
+     */
+    Optional<Turno> findTopByOrderByIdDesc();
+
+    /**
      * Conteo rápido de turnos por estado.
      */
     long countByEstado(String estado);
@@ -39,7 +44,22 @@ public interface TurnoRepository extends JpaRepository<Turno, Long> {
     List<Turno> findByNumero(Integer numero);
 
     /**
+     * Obtiene el turno más reciente con un número específico.
+     */
+    Optional<Turno> findTopByNumeroOrderByIdDesc(Integer numero);
+
+    /**
      * Obtiene el turno más reciente con un número y estado específico.
      */
     Optional<Turno> findTopByNumeroAndEstadoOrderByIdDesc(Integer numero, String estado);
+
+    /**
+     * Obtiene el último turno atendido por fecha/hora de atención.
+     */
+    Optional<Turno> findTopByEstadoOrderByHoraAtencionDesc(String estado);
+
+    /**
+     * Obtiene el último turno con el estado especificado por ID descendente.
+     */
+    Optional<Turno> findTopByEstadoOrderByIdDesc(String estado);
 }
