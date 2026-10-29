@@ -20,6 +20,8 @@
   <properties>
     <java.version>17</java.version>
     <cucumber.version>7.18.0</cucumber.version>
+    <!-- Lombok >= 1.18.40 es necesario para compilar con JDK 25 -->
+    <lombok.version>1.18.42</lombok.version>
     <!-- Por defecto corre solo las pruebas de API. Todo: -Dcucumber.filter.tags="@api or @ui" -->
     <cucumber.filter.tags>@api</cucumber.filter.tags>
   </properties>
