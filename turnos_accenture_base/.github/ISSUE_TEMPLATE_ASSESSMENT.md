@@ -24,7 +24,7 @@ Explica qué parte del flujo de la 'Fila Virtual' resuelve esta tarea.
 ## 2. Historia de Usuario o Rol Vinculado
 
 <!-- Marca la historia que impacta esta tarea -->
-- [ ] **📱 HU-01 (Usuario Móvil):** Pedir turno desde celular y ver cuánto falta (posición y tiempo estimado).
+- [ ] **📱 HU-01 (Usuario Móvil):** Pedir turno desde celular, ver cuánto falta (posición y tiempo estimado) y opción de cancelar turno.
 - [ ] **💻 HU-02 (Atendedor Ventanilla):** Llamar turnos en orden FIFO y ver personas esperando en tiempo real.
 - [ ] **⚙️ Infraestructura / Transversal:** Ingesta de datos CSV, pruebas automatizadas o configuración del pipeline.
 
